@@ -38,3 +38,7 @@ class UCGFilterSettings(metaclass=SingletonMeta):
     @property
     def app_settings(self):
         return self._config['app']
+
+    @property
+    def file_manager_settings(self):
+        return self._config['file_manager']
