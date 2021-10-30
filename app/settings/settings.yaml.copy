@@ -1,0 +1,5 @@
+app:
+  host: host
+  port: port
+file_manager:
+  media_folder: path_to_folder
