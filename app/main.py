@@ -16,8 +16,14 @@ def index():
 
 @app.post('/recognize', status_code=200)
 def recognize(source: str, prefix: str) -> str:
-    message = container_service._recongize_service.recognize_video(source, prefix)
-    return {'code': 200, 'message': message}
+    try:
+        message = container_service._recongize_service.recognize_ugc(
+            source, prefix)
+        code = 200
+    except Exception as ex:
+        message = ex
+        code = 400
+    return {'code': code, 'message': message}
 
 
 if __name__ == '__main__':
