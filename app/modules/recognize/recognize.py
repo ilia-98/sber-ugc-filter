@@ -12,6 +12,11 @@ from collections import defaultdict
 
 
 SAVING_FRAMES_PER_SECOND = 2
+LABEL_TIME_END = 'time_end'
+LABEL_TIME_START = "time_start"
+LABEL_CORNER_1 = "corner_1"
+LABEL_CORNER_2 = "corner_2"
+UNKNOWN = 'unknown'
 
 
 class ContentRecognize:
@@ -81,20 +86,20 @@ class ContentRecognize:
                     ar.celebrity for ar in previous_rec]
                 for name in current_names_celebrities:
                     if name in previous_names_celebrities:
-                        found_celebrities[name][-1]['time_end'] = current_duration
+                        found_celebrities[name][-1][LABEL_TIME_END] = current_duration
             for area in areas_for_blur:
                 area_in_dict = found_celebrities[area.celebrity]
-                if not area_in_dict or area_in_dict[-1]['time_end'] != current_duration:
+                if not area_in_dict or area_in_dict[-1][LABEL_TIME_END] != current_duration:
                     found_celebrities[area.celebrity].append(
                         {
-                            "time_start": current_duration,
-                            "time_end": current_duration,
-                            "corner_1": [
+                            LABEL_TIME_START: current_duration,
+                            LABEL_TIME_END: current_duration,
+                            LABEL_CORNER_1: [
                                 area.coordinates_to_ret[0],
                                 self.height_of_video -
                                 area.coordinates_to_ret[1]
                             ],
-                            "corner_2": [
+                            LABEL_CORNER_2: [
                                 area.coordinates_to_ret[2],
                                 self.height_of_video -
                                 area.coordinates_to_ret[3]
@@ -113,7 +118,7 @@ class ContentRecognize:
         recognized_faces = self.find_celebritis_service.find_celebrities(img)
         areas_for_blur = []
         for face in recognized_faces:
-            if face[0] != 'unknown':
+            if face[0] != UNKNOWN:
                 areas_for_blur.append(
                     self.find_celebritis_service.get_coordinates(face[0], face[1]))
 
