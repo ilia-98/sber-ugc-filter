@@ -9,7 +9,7 @@ from face_recognition.face_recognition_cli import image_files_in_folder
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-MODEL_PATH = f"./trained_knn_model.clf"
+MODEL_PATH = f"modules/model/trained_knn_model.clf"
 
 # Выход функции (лейбл,[углы])
 

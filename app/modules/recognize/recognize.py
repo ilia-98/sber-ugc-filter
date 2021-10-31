@@ -71,8 +71,6 @@ class ContentRecognize:
         previous_rec = None
 
         for current_duration in np.arange(0, video_clip.duration, step):
-            if current_duration > 30:
-                break
             frame_filename = f'{temp_image_file}.jpg'
             video_clip.save_frame(frame_filename, current_duration)
             areas_for_blur = self.check_for_celebrities(frame_filename)
