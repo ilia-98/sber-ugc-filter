@@ -9,6 +9,7 @@ Dependencies in `requirements.txt`
 
 ### Docker
 `docker build —tag sber`
+`docker run -p 80:80 sber`
 
 ## Vosk models
 https://alphacephei.com/vosk/models
