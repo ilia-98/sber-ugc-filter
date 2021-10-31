@@ -1,5 +1,8 @@
 import os
 from moviepy.editor import VideoFileClip, AudioFileClip
+
+from app.modules.recognize.vosk_transcriber import VOSKTranscriber
+from app.modules.recognize.audio_recognizer import AudioRecognizer
 from ..file_manager import FileManger
 from typing import Dict, List, Tuple
 import numpy as np
@@ -14,7 +17,9 @@ class ContentRecognize:
 
     def __init__(self) -> None:
         self.file_service = FileManger()
+        self.vosk_transcriber = VOSKTranscriber()
         self.find_celebritis_service = ModelRecognize()
+        self.audio_recognizer = AudioRecognizer()
         self.height_of_video = 0
 
     def recognize_ugc(self, source: str, prefix: str):
@@ -25,10 +30,7 @@ class ContentRecognize:
 
         # Отсечение аудио от видео и отправка на проверку
         audio = clip.audio
-        # audio, audio_dict = result_of_recognize_audio = self.recognize_audio(
-        #     audio)
-        audio_dict = {}
-
+        audio, audio_dict = self.recognize_audio(audio)
         # Отсечение видео от аудио и отправка на проверку
         video_without_audio: VideoFileClip = clip.without_audio()
         video_without_audio, video_dict = self.recognize_video_without_audio(
@@ -47,7 +49,10 @@ class ContentRecognize:
         return mes
 
     def recognize_audio(self, audio_clip: AudioFileClip) -> Tuple[AudioFileClip, Dict]:
-        pass
+        audio_file_path = self.file_service.save_audio_file_clip(audio_clip, 'audio.wav')
+        transcribed_text = self.vosk_transcriber.transcribe(audio_file_path)
+        result = self.audio_recognizer.recognize(transcribed_text)
+        return audio_clip, result
 
     def recognize_video_without_audio(self, video_clip: VideoFileClip) -> Tuple[VideoFileClip, Dict]:
         found_celebrities = {}

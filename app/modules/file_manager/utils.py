@@ -2,7 +2,7 @@ import json
 import os
 
 
-def overwrite_file(path_to_file: str):
+def remove_exists_file(path_to_file: str):
     if os.path.exists(path_to_file):
         os.remove(path_to_file)
 

@@ -2,10 +2,10 @@
 from fastapi import FastAPI
 from modules import container_service
 import uvicorn
-from settings import UCGFilterSettings
+from settings import UGCFilterSettings
 
 
-app_settings = UCGFilterSettings().app_settings
+app_settings = UGCFilterSettings().app_settings
 app = FastAPI()
 
 

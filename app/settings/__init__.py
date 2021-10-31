@@ -1,3 +1,3 @@
-from .settings import UCGFilterSettings
+from .settings import UGCFilterSettings
 
 settings_path = "./settings/"

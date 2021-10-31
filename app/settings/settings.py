@@ -7,7 +7,7 @@ from yaml import safe_load
 
 class SingletonMeta(type):
 
-    _instance: Optional[UCGFilterSettings] = None
+    _instance: Optional[UGCFilterSettings] = None
 
     _lock: Lock = Lock()
 
@@ -21,7 +21,7 @@ class SingletonMeta(type):
         cls._instance = None
 
 
-class UCGFilterSettings(metaclass=SingletonMeta):
+class UGCFilterSettings(metaclass=SingletonMeta):
     SETTINGS_FILENAME = "settings.yaml"
     APP_NAME = "ucg_filter"
 
@@ -30,7 +30,7 @@ class UCGFilterSettings(metaclass=SingletonMeta):
         if not settings_path:
             path = dirname(realpath(__file__))
             settings_path = "{}/{}".format(path,
-                                           UCGFilterSettings.SETTINGS_FILENAME)
+                                           UGCFilterSettings.SETTINGS_FILENAME)
 
         with open(settings_path, "r", encoding="utf-8") as ymlfile:
             self._config = safe_load(ymlfile)

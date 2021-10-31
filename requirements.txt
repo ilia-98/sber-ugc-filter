@@ -24,3 +24,6 @@ uvicorn==0.15.0
 watchgod==0.7
 boto3
 moviepy
+vosk
+sklearn
+face_recognition
