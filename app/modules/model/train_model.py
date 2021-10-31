@@ -14,7 +14,7 @@ MODEL_PATH = f"E:/Data/pet-projects/sberzvuk/sber-ugc-filter/app/modules/model/t
 # Выход функции (лейбл,[углы])
 
 
-def predict(X_img_path, knn_clf=None, model_path=MODEL_PATH, distance_threshold=0.6):
+def predict(X_img_path, knn_clf=None, model_path=MODEL_PATH, distance_threshold=0.54):
     """
     Recognizes faces in given image using a trained KNN classifier
     :param X_img_path: path to image to be recognized

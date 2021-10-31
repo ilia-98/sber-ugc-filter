@@ -8,6 +8,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from ..model import ModelRecognize, AreaCoordinates
 from PIL import Image, ImageFilter
+from collections import defaultdict
 
 
 SAVING_FRAMES_PER_SECOND = 2
@@ -49,35 +50,72 @@ class ContentRecognize:
         return mes
 
     def recognize_audio(self, audio_clip: AudioFileClip) -> Tuple[AudioFileClip, Dict]:
-        audio_file_path = self.file_service.save_audio_file_clip(audio_clip, 'audio.wav')
+        audio_file_path = self.file_service.save_audio_file_clip(
+            audio_clip, 'audio.wav')
         transcribed_text = self.vosk_transcriber.transcribe(audio_file_path)
         result = self.audio_recognizer.recognize(transcribed_text)
         return audio_clip, result
 
     def recognize_video_without_audio(self, video_clip: VideoFileClip) -> Tuple[VideoFileClip, Dict]:
-        found_celebrities = {}
+        found_celebrities = defaultdict(list)
         temp_image_file, ext = os.path.splitext(video_clip.filename)
+
         saving_frames_per_second = min(
             video_clip.fps, SAVING_FRAMES_PER_SECOND)
         step = 1 / saving_frames_per_second
-        for current_duration in np.arange(0, video_clip.duration, step):
+        previous_rec = None
 
+        for current_duration in np.arange(0, video_clip.duration, step):
+            if current_duration > 30:
+                break
             frame_filename = f'{temp_image_file}.jpg'
             video_clip.save_frame(frame_filename, current_duration)
             areas_for_blur = self.check_for_celebrities(frame_filename)
-
             if not areas_for_blur:
+                previous_rec = None
                 continue
+            if previous_rec:
+                current_names_celebrities = [
+                    ar.celebrity for ar in areas_for_blur]
+                previous_names_celebrities = [
+                    ar.celebrity for ar in previous_rec]
+                for name in current_names_celebrities:
+                    if name in previous_names_celebrities:
+                        found_celebrities[name][-1]['time_end'] = current_duration
+            for area in areas_for_blur:
+                area_in_dict = found_celebrities[area.celebrity]
+                if not area_in_dict or area_in_dict[-1]['time_end'] != current_duration:
+                    found_celebrities[area.celebrity].append(
+                        {
+                            "time_start": current_duration,
+                            "time_end": current_duration,
+                            "corner_1": [
+                                area.coordinates_to_ret[0],
+                                self.height_of_video -
+                                area.coordinates_to_ret[1]
+                            ],
+                            "corner_2": [
+                                area.coordinates_to_ret[2],
+                                self.height_of_video -
+                                area.coordinates_to_ret[3]
+                            ],
+                        }
+                    )
 
-            self.area_blur(areas_for_blur, frame_filename)
+            previous_rec = areas_for_blur
+        to_ret = []
+        for name, stamps in found_celebrities.items():
+            for stamp in stamps:
+                to_ret.append(stamp)
+        return video_clip, to_ret
 
-    def check_for_celebrities(self, img):
+    def check_for_celebrities(self, img) -> List[AreaCoordinates]:
         recognized_faces = self.find_celebritis_service.find_celebrities(img)
         areas_for_blur = []
         for face in recognized_faces:
-            if face[0] != 'unknow':
+            if face[0] != 'unknown':
                 areas_for_blur.append(
-                    self.find_celebritis_service.get_coordinates(face[1]))
+                    self.find_celebritis_service.get_coordinates(face[0], face[1]))
 
         return areas_for_blur
 

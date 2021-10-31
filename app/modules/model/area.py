@@ -7,13 +7,15 @@ class AreaCoordinates:
     _left_lower: Tuple
     _right_upper: Tuple
     _right_lower: Tuple
+    _celebrity: str
 
-    def __init__(self, coordinates: Tuple) -> None:
+    def __init__(self, celebrity: str, coordinates: Tuple) -> None:
         self._left_upper = (coordinates[3], coordinates[0])
         self._right_lower = (coordinates[1], coordinates[2])
 
         self._left_lower = (coordinates[3], coordinates[2])
         self._right_upper = (coordinates[1], coordinates[0])
+        self._celebrity = celebrity
 
     @property
     def left_upper(self):
@@ -30,6 +32,10 @@ class AreaCoordinates:
     @property
     def right_lower(self):
         return self._right_lower
+
+    @property
+    def celebrity(self):
+        return self._celebrity
 
     @property
     def coordinates_to_ret(self):

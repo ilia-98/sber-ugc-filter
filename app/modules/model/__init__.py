@@ -8,5 +8,5 @@ class ModelRecognize:
     def find_celebrities(self, path_to_image_file) -> List[Union[Tuple, Tuple[Literal['unknown']]]]:
         return predict(path_to_image_file)
 
-    def get_coordinates(self, corner_coordinates) -> AreaCoordinates:
-        return AreaCoordinates(corner_coordinates)
+    def get_coordinates(self, celebrity, corner_coordinates) -> AreaCoordinates:
+        return AreaCoordinates(celebrity, corner_coordinates)
