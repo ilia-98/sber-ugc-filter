@@ -1,3 +1,4 @@
+import traceback
 
 from fastapi import FastAPI
 from modules import container_service
@@ -23,6 +24,7 @@ def recognize(source: str, prefix: str) -> str:
     except Exception as ex:
         message = ex
         code = 400
+        print(traceback.format_exc())
     return {'code': code, 'message': message}
 
 

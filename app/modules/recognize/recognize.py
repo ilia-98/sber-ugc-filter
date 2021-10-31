@@ -1,8 +1,8 @@
 import os
 from moviepy.editor import VideoFileClip, AudioFileClip
 
-from app.modules.recognize.vosk_transcriber import VOSKTranscriber
-from app.modules.recognize.audio_recognizer import AudioRecognizer
+from modules.recognize.vosk_transcriber import VOSKTranscriber
+from modules.recognize.audio_recognizer import AudioRecognizer
 from ..file_manager import FileManger
 from typing import Dict, List, Tuple
 import numpy as np

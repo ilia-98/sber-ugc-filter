@@ -7,7 +7,7 @@ from settings import UGCFilterSettings
 import os
 import sys
 
-from app.modules.file_manager import utils
+from modules.file_manager import utils
 
 FILE_NAME = 'video_file'
 AWS_ACCESS_KEY_ID = 'CMG2SNAMOCRNGALFWXER'
@@ -25,7 +25,7 @@ class FileManger:
     # http://hackaton.sber-zvuk.com/hackathon_part_1.mp4
     def get_videofile_from_url_source(self, url: str) -> str:
         path_to_file = f'{self.media_folder}{FILE_NAME}.mp4'
-        utils.overwrite_file(path_to_file)
+        utils.remove_exists_file(path_to_file)
         # path_to_folder, file_name = os.path.split(path_to_file)
         print('Start downloading video')
         urllib.request.urlretrieve(url, path_to_file)
