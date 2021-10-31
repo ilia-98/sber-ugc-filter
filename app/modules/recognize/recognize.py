@@ -1,27 +1,33 @@
 import os
 from moviepy.editor import VideoFileClip, AudioFileClip
 from ..file_manager import FileManger
-from typing import Dict, Tuple
-from datetime import timedelta
+from typing import Dict, List, Tuple
 import numpy as np
-SAVING_FRAMES_PER_SECOND = 25
+from ..model import ModelRecognize, AreaCoordinates
+from PIL import Image, ImageFilter
+
+
+SAVING_FRAMES_PER_SECOND = 2
 
 
 class ContentRecognize:
 
     def __init__(self) -> None:
         self.file_service = FileManger()
+        self.find_celebritis_service = ModelRecognize()
+        self.height_of_video = 0
 
     def recognize_ugc(self, source: str, prefix: str):
         path_to_file = self.file_service.get_videofile_from_url_source(source)
-        filename, ext = os.path.splitext(path_to_file)
 
         clip = VideoFileClip(path_to_file)
+        self.height_of_video = clip.h
 
         # Отсечение аудио от видео и отправка на проверку
         audio = clip.audio
-        audio, audio_dict = result_of_recognize_audio = self.recognize_audio(
-            audio)
+        # audio, audio_dict = result_of_recognize_audio = self.recognize_audio(
+        #     audio)
+        audio_dict = {}
 
         # Отсечение видео от аудио и отправка на проверку
         video_without_audio: VideoFileClip = clip.without_audio()
@@ -44,18 +50,38 @@ class ContentRecognize:
         pass
 
     def recognize_video_without_audio(self, video_clip: VideoFileClip) -> Tuple[VideoFileClip, Dict]:
-        for frame in video_clip.iter_frames():
-            res = self.check_for_celebrities(frame)
-            blur_frame = self.area_blur()
+        found_celebrities = {}
+        temp_image_file, ext = os.path.splitext(video_clip.filename)
+        saving_frames_per_second = min(
+            video_clip.fps, SAVING_FRAMES_PER_SECOND)
+        step = 1 / saving_frames_per_second
+        for current_duration in np.arange(0, video_clip.duration, step):
 
-    def check_for_celebrities(self, frame):
-        recognized_faces = []
+            frame_filename = f'{temp_image_file}.jpg'
+            video_clip.save_frame(frame_filename, current_duration)
+            areas_for_blur = self.check_for_celebrities(frame_filename)
+
+            if not areas_for_blur:
+                continue
+
+            self.area_blur(areas_for_blur, frame_filename)
+
+    def check_for_celebrities(self, img):
+        recognized_faces = self.find_celebritis_service.find_celebrities(img)
         areas_for_blur = []
         for face in recognized_faces:
             if face[0] != 'unknow':
-                areas_for_blur.append(face)
+                areas_for_blur.append(
+                    self.find_celebritis_service.get_coordinates(face[1]))
 
         return areas_for_blur
 
-    def area_blur(self):
-        pass
+    def area_blur(self, areas: List[AreaCoordinates], path_to_image):
+        image = Image.open(path_to_image)
+        for area in areas:
+            croped_image = image.crop(area.coordinates_to_blur)
+            blured_image = croped_image.filter(
+                ImageFilter.GaussianBlur(radius=20))
+            image.paste(
+                blured_image, area.left_upper)
+            image.save(path_to_image)
